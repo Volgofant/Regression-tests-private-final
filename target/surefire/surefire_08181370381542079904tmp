@@ -1,0 +1,5 @@
+#surefire_0
+#Mon Dec 23 12:34:04 GMT+03:00 2019
+basedir=C\:\\Program Files (x86)\\Jenkins\\workspace\\Shop
+user.dir=C\:\\Program Files (x86)\\Jenkins\\workspace\\Shop
+localRepository=C\:\\Windows\\system32\\config\\systemprofile\\.m2\\repository
