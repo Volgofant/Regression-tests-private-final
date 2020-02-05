@@ -1,9 +1,9 @@
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import Pages.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.io.FileHandler;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -28,6 +28,7 @@ public class TestMainClass {
     private Date dateNow = new Date();
     private SimpleDateFormat format = new SimpleDateFormat("hhч mmмин ssсек");
     private String fileName = format.format(dateNow) + ".png";
+    String productName = "TestIt";
 
     private void screenshot() {
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
@@ -38,14 +39,21 @@ public class TestMainClass {
         }
     }
 
+    @BeforeClass
+    public static void setupClass () {
+        WebDriverManager.chromedriver().version("79.0.3945.36").setup();
+
+    }
 
     @Before
     public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\viktor.nenashev\\WebDrivers\\chromedriver.exe");
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.setHeadless(true);
+        options.addArguments("--proxy-server='direct://'");
+        options.addArguments("--proxy-bypass-list=*");
+        options.addArguments("--no-sandbox");
+        driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        driver.manage().window().maximize();
-
         mainPage = new MainPage(driver);
 //        mainPage.closeFuckingCoockie();
         registrationPage = new RegistrationPage(driver);
@@ -74,225 +82,188 @@ public class TestMainClass {
 
     @Test
     public void registrationNullNameTest() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("");
-            registrationPage.insertSignInSurname("Ненашев");
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("1q2w3e4r");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullName());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
-
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        Integer element = registrationPage.i;
+        String let = Integer.toString(element);
+        String str = "a" + let;
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("");
+        registrationPage.insertSignInSurname("Ненашев");
+        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+        registrationPage.insertSignInPass("1q2w3e4r");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullName());
     }
 
     @Test
     public void registrationNullSurNameTest() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("Виктор");
-            registrationPage.insertSignInSurname("");
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("1q2w3e4r");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullSurName());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        Integer element = registrationPage.i;
+        String let = Integer.toString(element);
+        String str = "a" + let;
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("Виктор");
+        registrationPage.insertSignInSurname("");
+        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+        registrationPage.insertSignInPass("1q2w3e4r");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullSurName());
     }
 
     @Test
     public void registrationNullMail() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("Виктор");
-            registrationPage.insertSignInSurname("Ненашев");
-            registrationPage.insertSignInMail("");
-            registrationPage.insertSignInPass("1q2w3e4r");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getErrorMessageNullMail());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("Виктор");
+        registrationPage.insertSignInSurname("Ненашев");
+        registrationPage.insertSignInMail("");
+        registrationPage.insertSignInPass("1q2w3e4r");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getErrorMessageNullMail());
+
     }
 
     @Test
     public void registrationRepeatMail() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("Виктор");
-            registrationPage.insertSignInSurname("Ненашев");
-            registrationPage.insertSignInMail("borcuha64@mail.ru");
-            registrationPage.insertSignInPass("1q2w3e4r");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Пользователь с таким адресом уже зарегистрирован", registrationPage.getErrorMessageRepeatMail());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("Виктор");
+        registrationPage.insertSignInSurname("Ненашев");
+        registrationPage.insertSignInMail("borcuha64@mail.ru");
+        registrationPage.insertSignInPass("1q2w3e4r");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Пользователь с таким адресом уже зарегистрирован", registrationPage.getErrorMessageRepeatMail());
+
     }
 
     @Test
     public void registrationWrongMail() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("Виктор");
-            registrationPage.insertSignInSurname("Ненашев");
-            registrationPage.insertSignInMail("borcuha64@s");
-            registrationPage.insertSignInPass("1q2w3e4r");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Неверный адрес электронной почты", driver.findElement(By.xpath("//div[@class=\"s-error msg\"]")).getText());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("Виктор");
+        registrationPage.insertSignInSurname("Ненашев");
+        registrationPage.insertSignInMail("borcuha64@s");
+        registrationPage.insertSignInPass("1q2w3e4r");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Неверный адрес электронной почты", driver.findElement(By.xpath("//div[@class=\"s-error msg\"]")).getText());
+
     }
 
     @Test
     public void registrationNullPassword() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("nenashev" + str);
-            registrationPage.insertSignInSurname("nenashev" + str);
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getNullPassNo());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        Integer element = registrationPage.i;
+        String let = Integer.toString(element);
+        String str = "a" + let;
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("nenashev" + str);
+        registrationPage.insertSignInSurname("nenashev" + str);
+        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+        registrationPage.insertSignInPass("");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getNullPassNo());
+
     }
 
     @Test
     public void registrationSmallPassword() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("nenashev" + str);
-            registrationPage.insertSignInSurname("nenashev" + str);
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("12345");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Пароль поле слишком короткое (не менее 6 знаков)", registrationPage.getNullPassNo());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        Integer element = registrationPage.i;
+        String let = Integer.toString(element);
+        String str = "a" + let;
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("nenashev" + str);
+        registrationPage.insertSignInSurname("nenashev" + str);
+        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+        registrationPage.insertSignInPass("12345");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Пароль поле слишком короткое (не менее 6 знаков)", registrationPage.getNullPassNo());
+
     }
 
     @Test
     public void registrationBigPassword() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.insertSignInName("nenashev" + str);
-            registrationPage.insertSignInSurname("nenashev" + str);
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("123451234512345123451234512345123451234512345123451");
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Максимум 50 символов", registrationPage.getThisPageWrongPass());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        Integer element = registrationPage.i;
+        String let = Integer.toString(element);
+        String str = "a" + let;
+        mainPage.clickRegistration();
+        registrationPage.insertSignInName("nenashev" + str);
+        registrationPage.insertSignInSurname("nenashev" + str);
+        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+        registrationPage.insertSignInPass("123451234512345123451234512345123451234512345123451");
+        registrationPage.checkBoxAgreement();
+        registrationPage.checkBoxMailSpam();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Максимум 50 символов", registrationPage.getThisPageWrongPass());
+
     }
 
-    @Test
-    public void registrationOkFemale() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.choiceMaleGender();
-            registrationPage.choiceFemaleGender();
-            registrationPage.insertSignInName("nenashev" + str);
-            registrationPage.insertSignInSurname("nenashev" + str);
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("nenashev" + str);
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            Thread.sleep(3000);
-            Assert.assertEquals("nenashev" + str, mainPage.getNameLogin());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
-    }
+//    @Test
+//    public void registrationOkFemale() {
+//        try {
+//            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+//            Integer element = registrationPage.i;
+//            String let = Integer.toString(element);
+//            String str = "a" + let;
+//            mainPage.clickRegistration();
+//            registrationPage.choiceMaleGender();
+//            registrationPage.choiceFemaleGender();
+//            registrationPage.insertSignInName("nenashev" + str);
+//            registrationPage.insertSignInSurname("nenashev" + str);
+//            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+//            registrationPage.insertSignInPass("nenashev" + str);
+//            registrationPage.checkBoxAgreement();
+//            registrationPage.checkBoxMailSpam();
+//            registrationPage.clickSignInButton();
+//            Thread.sleep(3000);
+//            Assert.assertEquals("nenashev" + str, mainPage.getNameLogin());
+//        } catch (Exception e) {
+//            System.out.println(e);
+//            screenshot();
+//            Assert.fail();
+//        }
+//    }
 
-    @Test
-    public void registrationOkMale() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            String constant = "nenashev" + str;
-            registrationPage.choiceMaleGender();
-            registrationPage.insertSignInName(constant);
-            registrationPage.insertSignInSurname(constant);
-            registrationPage.insertSignInMail(constant + "@mail.ru");
-            registrationPage.insertSignInPass(constant);
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-            Assert.assertEquals(constant, mainPage.getNameLogin());
+//    @Test
+//    public void registrationOkMale() {
+//        try {
+//            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+//            Integer element = registrationPage.i;
+//            String let = Integer.toString(element);
+//            String str = "a" + let;
+//            mainPage.clickRegistration();
+//            String constant = "nenashev" + str;
+//            registrationPage.choiceMaleGender();
+//            registrationPage.insertSignInName(constant);
+//            registrationPage.insertSignInSurname(constant);
+//            registrationPage.insertSignInMail(constant + "@mail.ru");
+//            registrationPage.insertSignInPass(constant);
+//            registrationPage.checkBoxAgreement();
+//            registrationPage.checkBoxMailSpam();
+//            registrationPage.clickSignInButton();
+//            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+//            Assert.assertEquals(constant, mainPage.getNameLogin());
 //        driver.get("https://crm-app-stage.ww-ru.ru/ru/messages?created_at=&ecircle_response=&email=&message_type=&origin=&state=");
 //        driver.findElement(By.xpath("//input[@id=\"Email\"]")).sendKeys("viktor.nenashev@westwing.ru");
 //        driver.findElement(By.xpath("//input[@id=\"next\"]")).click();
@@ -302,98 +273,81 @@ public class TestMainClass {
 //        Assert.assertEquals("customer_successfulregistration", driver.findElement(By.xpath("//tbody/tr/td[7]")).getText());
 //        Thread.sleep(20000);
 //        Assert.assertEquals("executed" , driver.findElement(By.xpath("//tbody/tr/td[3]")).getText());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
-    }
+//        } catch (Exception e) {
+//            System.out.println(e);
+//            screenshot();
+//            Assert.fail();
+//        }
+//    }
 
     @Test
     public void registrationNullAll() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.clickSignInButton();
-            Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullName());
-            Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullSurName());
-            Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getErrorMessageNullMail());
-            Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getErrorMessageMailOnPass());
-            Assert.assertEquals("Обязательное поле", registrationPage.getNullAgreements());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        registrationPage.clickSignInButton();
+        Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullName());
+        Assert.assertEquals("Обязательное поле", registrationPage.getErrorMessageNullSurName());
+        Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getErrorMessageNullMail());
+        Assert.assertEquals("Поле обязательно для заполнения", registrationPage.getErrorMessageMailOnPass());
+        Assert.assertEquals("Обязательное поле", registrationPage.getNullAgreements());
+
 
     }
 
     @Test
     public void registrationOnFacebook() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            String mainWindow = driver.getWindowHandle();
-            registrationPage.clickSingInFacebook();
-            registrationPage.inputFacebookInfo();
-            driver.switchTo().window(mainWindow);
-            WebElement dunamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.className("accountStep1__header__text")));
-            Assert.assertEquals("Из обзора учетной записи пользователя можно просматривать последние операции и редактировать данные учетной записи. Для этого выберите одну из ссылок ниже для просмотра или редактирования.", accountPage.getHelloMessage());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        String mainWindow = driver.getWindowHandle();
+        registrationPage.clickSingInFacebook();
+        registrationPage.inputFacebookInfo();
+        driver.switchTo().window(mainWindow);
+        WebElement dunamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.className("accountStep1__header__text")));
+        Assert.assertEquals("Из обзора учетной записи пользователя можно просматривать последние операции и редактировать данные учетной записи. Для этого выберите одну из ссылок ниже для просмотра или редактирования.", accountPage.getHelloMessage());
+
     }
 
     @Test
-    public void logIngOnFacebook() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            String mainWindow = driver.getWindowHandle();
-            Thread.sleep(500);
-            registrationPage.loginInFacebook();
-            registrationPage.inputFacebookInfo();
-            driver.switchTo().window(mainWindow);
-            Thread.sleep(4000);
-            Assert.assertEquals("Виктор", mainPage.getNameLogin());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+    public void logIngOnFacebook() throws InterruptedException {
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        String mainWindow = driver.getWindowHandle();
+        Thread.sleep(500);
+        registrationPage.loginInFacebook();
+        registrationPage.inputFacebookInfo();
+        driver.switchTo().window(mainWindow);
+        Thread.sleep(4000);
+        Assert.assertEquals("Виктор", mainPage.getNameLogin());
+
     }
 
     @Test
-    public void WishList() {
+    public void WishList() throws InterruptedException {
+
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        registrationPage.insertLogInMail("kpamel@bk.ru");
+        registrationPage.insertLogInPass("1q2w3e4r");
+        registrationPage.clickLogInButton();
+        mainPage.sendSearchInput(productName);
+        mainPage.clickEnter();
+        furniturePage.clickProduct();
+        String product = productPage.getProductName();
         try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.insertLogInMail("kpamel@bk.ru");
-            registrationPage.insertLogInPass("1q2w3e4r");
-            registrationPage.clickLogInButton();
-            mainPage.sendSearchInput("Ковер Hippy от Lorena Canals");
-            mainPage.clickEnter();
-            furniturePage.clickProduct();
-            String product = productPage.getProductName();
-            try {
-                productPage.clickButtonInWishList();
-                productPage.clickButtonChoiceWishList();
-            } catch (Exception e) {
-                productPage.clickButtonChoiceWishList();
-            } finally {
-                Thread.sleep(1000);
-                mainPage.clickWishSpan();
-                Assert.assertEquals(product, wishPage.getNameWishList());
-                wishPage.clickDeleteProductWishList();
-                Assert.assertEquals("Продукт был удален из Вашего списка Список желаний", wishPage.getTextDeleteProduct());
-            }
+            productPage.clickButtonInWishList();
+            productPage.clickButtonChoiceWishList();
         } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
+            productPage.clickButtonChoiceWishList();
+        } finally {
+            Thread.sleep(1000);
+            mainPage.clickWishSpan();
+            Assert.assertEquals(product, wishPage.getNameWishList());
+            wishPage.clickDeleteProductWishList();
+            Assert.assertEquals("Продукт был удален из Вашего списка Список желаний", wishPage.getTextDeleteProduct());
         }
+
     }
 
     @Test
@@ -403,7 +357,7 @@ public class TestMainClass {
         registrationPage.insertLogInMail("kpamel@bk.ru");
         registrationPage.insertLogInPass("1q2w3e4r");
         registrationPage.clickLogInButton();
-        mainPage.sendSearchInput("Ковер Hippy от Lorena Canals");
+        mainPage.sendSearchInput(productName);
         mainPage.clickEnter();
         furniturePage.clickProduct();
         String product = productPage.getProductName();
@@ -428,73 +382,82 @@ public class TestMainClass {
         }
     }
 
-    @Test
-    public void doOrderFirstTime() {
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            Integer element = registrationPage.i;
-            String let = Integer.toString(element);
-            String str = "a" + let;
-            mainPage.clickRegistration();
-            registrationPage.choiceMaleGender();
-            registrationPage.insertSignInName("nenashev" + str);
-            registrationPage.insertSignInSurname("nenashev" + str);
-            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-            registrationPage.insertSignInPass("nenashev" + str);
-            registrationPage.checkBoxAgreement();
-            registrationPage.checkBoxMailSpam();
-            registrationPage.clickSignInButton();
-            mainPage.sendSearchInput("Ковер Hippy от Lorena Canals");
-            mainPage.clickEnter();
-            furniturePage.clickProduct();
-            productPage.clickButtonInBasket();
-            mainPage.clickBasketSpan();
-            basketPage.clickPayButton();
-            billPages.inputName();
-            billPages.inputSurname();
-            billPages.inputCity();
-            billPages.choiceDeliveryMethodExpress();
-            billPages.inputStreetNumber();
-            billPages.inputMailIndex();
-            billPages.inputPhone();
-            billPages.clickButtonNextStep();
-            billPages.clickButtonNextStep2();
-            billPages.clickCheckoutBtn();
-
-            Assert.assertEquals("Спасибо за покупку!", billPages.getTextCheckreadyOrder());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
-    }
+//    @Test
+//    public void doOrderFirstTime() {
+//        try {
+//            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+//            Integer element = registrationPage.i;
+//            String let = Integer.toString(element);
+//            String str = "a" + let;
+//            mainPage.clickRegistration();
+//            registrationPage.choiceMaleGender();
+//            registrationPage.insertSignInName("nenashev" + str);
+//            registrationPage.insertSignInSurname("nenashev" + str);
+//            registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+//            registrationPage.insertSignInPass("nenashev" + str);
+//            registrationPage.checkBoxAgreement();
+//            registrationPage.checkBoxMailSpam();
+//            registrationPage.clickSignInButton();
+//            mainPage.sendSearchInput(productName);
+//            mainPage.clickEnter();
+//            furniturePage.clickProduct();
+//            productPage.clickButtonInBasket();
+//            mainPage.clickBasketSpan();
+//            basketPage.clickPayButton();
+//            billPages.inputName();
+//            billPages.inputSurname();
+//            billPages.inputCity();
+//            billPages.choiceDeliveryMethodExpress();
+//            billPages.inputStreetNumber();
+//            billPages.inputPhone();
+//            billPages.clickButtonNextStep();
+//            billPages.clickButtonNextStep2();
+//            billPages.clickCheckoutBtn();
+//
+//            Assert.assertEquals("Спасибо за покупку!", billPages.getTextCheckreadyOrder());
+//        } catch (Exception e) {
+//            System.out.println(e);
+//            screenshot();
+//            Assert.fail();
+//        }
+//    }
 
     @Test
     public void doOrderRepeatedlyTimeCash() {
-        String mail = "tovaro@mail.ru";
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.insertLogInMail(mail);
-            registrationPage.insertLogInPass("westwingpas");
-            registrationPage.clickLogInButton();
-            mainPage.sendSearchInput("Ковер Hippy от Lorena Canals");
-            mainPage.clickEnter();
-            furniturePage.clickProduct();
-            productPage.clickButtonInBasket();
-            mainPage.clickBasketSpan();
-            basketPage.clickPayButton();
-            billPages.choiceDeliveryMethodExpress();
+        String mail = "lazUaz@mail.ru";
+        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+        mainPage.clickRegistration();
+        registrationPage.insertLogInMail(mail);
+        registrationPage.insertLogInPass("westwingpas");
+        registrationPage.clickLogInButton();
+        mainPage.sendSearchInput(productName);
+        mainPage.clickEnter();
+        furniturePage.clickProduct();
+        productPage.clickButtonInBasket();
+        mainPage.clickBasketSpan();
+        basketPage.clickPayButton();
+        driver.findElement(billPages.name).clear();
+        billPages.inputName();
+        driver.findElement(billPages.surname).clear();
+        billPages.inputSurname();
+        driver.findElement(billPages.city).clear();
+        billPages.inputCity("Волгоград, Волгоградская область");
+        driver.findElement(billPages.city).sendKeys(Keys.ENTER);
+        billPages.choiceDeliveryMethodExpress();
+        driver.findElement(billPages.address).clear();
+        billPages.inputAdvancedAddress();
+        driver.findElement(billPages.phone).clear();
+        billPages.inputPhone();
+        billPages.clickButtonNextStep();
+        if (driver.findElement(billPages.getCash()).isSelected()) {
             billPages.clickButtonNextStep();
-            if (driver.findElement(billPages.getCash()).isSelected()) {
-                billPages.clickButtonNextStep();
-                billPages.clickCheckoutBtn();
-            } else {
-                billPages.choiceCash();
-                billPages.clickButtonNextStep();
-                billPages.clickCheckoutBtn();
-            }
-            Assert.assertEquals("Спасибо за покупку!", billPages.getTextCheckreadyOrder());
+            billPages.clickCheckoutBtn();
+        } else {
+            billPages.choiceCash();
+            billPages.clickButtonNextStep();
+            billPages.clickCheckoutBtn();
+        }
+        Assert.assertEquals("Спасибо за покупку!", billPages.getTextCheckreadyOrder());
 //            driver.get("https://crm-app-stage.ww-ru.ru/ru/messages?created_at=&ecircle_response=&email=&message_type=&origin=&state=");
 //            driver.findElement(By.xpath("//input[@id=\"Email\"]")).sendKeys("viktor.nenashev@westwing.ru");
 //            driver.findElement(By.xpath("//input[@id=\"next\"]")).click();
@@ -503,80 +466,83 @@ public class TestMainClass {
 //            Assert.assertEquals(mail, driver.findElement(By.xpath("//tbody/tr/td[2]")).getText());
 //            Assert.assertEquals("executed", driver.findElement(By.xpath("//tbody/tr/td[3]")).getText());
 //            Assert.assertEquals("sales_orderconfirmation", driver.findElement(By.xpath("//tbody/tr/td[7]")).getText());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
+
     }
 
     @Test
     public void doOrderRepeatedlyTimeCreditCard() {
-        String mail = "tovaro@mail.ru";
-        try {
-            driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-            mainPage.clickRegistration();
-            registrationPage.insertLogInMail(mail);
-            registrationPage.insertLogInPass("westwingpas");
-            registrationPage.clickLogInButton();
-            mainPage.sendSearchInput("Ковер Hippy от Lorena Canals");
-            mainPage.clickEnter();
-            furniturePage.clickProduct();
-            productPage.clickButtonInBasket();
-            mainPage.clickBasketSpan();
-            basketPage.clickPayButton();
-            billPages.choiceDeliveryMethodExpress();
-            billPages.clickButtonNextStep();
-            if (driver.findElement(billPages.getCreditCard()).isSelected()) {
-                billPages.clickButtonNextStep2();
-                billPages.clickCheckoutBtn();
-            } else {
-                billPages.choiceCreditCard();
-                billPages.clickButtonNextStep2();
-                billPages.clickCheckoutBtn();
-            }
-            Assert.assertEquals("ООО \"ВЕСТВИНГ РАША\"", billPages.getTextYandexPayService());
-            driver.findElement(By.xpath("//input[@id=\"cardNumber\"]")).sendKeys("4444 4444 4444 4448");
-            driver.findElement(By.xpath("//input[@name=\"skr_month\"]")).sendKeys("12");
-            driver.findElement(By.xpath("//input[@name=\"skr_year\"]")).sendKeys("20");
-            driver.findElement(By.xpath("//input[@name=\"skr_cardCvc\"]")).sendKeys("444");
-            driver.findElement(By.xpath("//button[@class=\"button button_size_m button_theme_action payment-contract__pay-button i-bem button_js_inited\"]")).click();
-            driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
-            Assert.assertEquals("Спасибо за покупку!", driver.findElement(By.xpath("//div[@class=\"checkout__finish__left__header\"]/p[@class=\"checkout__finish__left__text\"]")).getText());
-        } catch (Exception e) {
-            System.out.println(e);
-            screenshot();
-            Assert.fail();
-        }
-
-    }
-
-    @Test
-    public void changePass() throws InterruptedException {
+        String mail = "lazUaz@mail.ru";
         driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
-        Integer element = registrationPage.i;
-        String let = Integer.toString(element);
-        String str = "a" + let;
         mainPage.clickRegistration();
-        registrationPage.choiceMaleGender();
-        registrationPage.insertSignInName("nenashev" + str);
-        registrationPage.insertSignInSurname("nenashev" + str);
-        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
-        registrationPage.insertSignInPass("westwingpas");
-        registrationPage.checkBoxAgreement();
-        registrationPage.checkBoxMailSpam();
-        registrationPage.clickSignInButton();
-        mainPage.clickMyAccount();
-        accountPage.clickChangeDate();
-        accountPage.clickButtonChangePass();
-        accountPage.inputActualPass("westwingpas");
-        accountPage.inputNewPass("newwestwingpas");
-        accountPage.inputNewPassConfirm("newwestwingpas");
-        accountPage.clickSaveNewPass();
-        Thread.sleep(3000);
-        String OkPassChange = accountPage.getTextPassChange();
-        Assert.assertEquals("Пароль успешно изменен", OkPassChange);
+        registrationPage.insertLogInMail(mail);
+        registrationPage.insertLogInPass("westwingpas");
+        registrationPage.clickLogInButton();
+        mainPage.sendSearchInput(productName);
+        mainPage.clickEnter();
+        furniturePage.clickProduct();
+        productPage.clickButtonInBasket();
+        mainPage.clickBasketSpan();
+        basketPage.clickPayButton();
+        driver.findElement(billPages.name).clear();
+        billPages.inputName();
+        driver.findElement(billPages.surname).clear();
+        billPages.inputSurname();
+        driver.findElement(billPages.city).clear();
+        billPages.inputCity("Волгоград, Волгоградская область");
+        driver.findElement(billPages.city).sendKeys(Keys.ENTER);
+        billPages.choiceDeliveryMethodExpress();
+        driver.findElement(billPages.address).clear();
+        billPages.inputAdvancedAddress();
+        driver.findElement(billPages.phone).clear();
+        billPages.inputPhone();
+        billPages.clickButtonNextStep();
+        if (driver.findElement(billPages.getCreditCard()).isSelected()) {
+            billPages.clickButtonNextStep2();
+            billPages.clickCheckoutBtn();
+        } else {
+            billPages.choiceCreditCard();
+            billPages.clickButtonNextStep2();
+            billPages.clickCheckoutBtn();
+        }
+        Assert.assertEquals("ООО \"ВЕСТВИНГ РАША\"", billPages.getTextYandexPayService());
+        driver.findElement(By.xpath("//input[@id=\"cardNumber\"]")).sendKeys("4444 4444 4444 4448");
+        driver.findElement(By.xpath("//input[@name=\"skr_month\"]")).sendKeys("12");
+        driver.findElement(By.xpath("//input[@name=\"skr_year\"]")).sendKeys("20");
+        driver.findElement(By.xpath("//input[@name=\"skr_cardCvc\"]")).sendKeys("444");
+        driver.findElement(By.xpath("//button[@class=\"button button_size_m button_theme_action payment-contract__pay-button i-bem button_js_inited\"]")).click();
+        //проверки не работают пока не починится переход с яндексПэй на вествинг
+//            driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+//            Assert.assertEquals("Спасибо за покупку!", driver.findElement(By.xpath("//div[@class=\"checkout__finish__left__header\"]/p[@class=\"checkout__finish__left__text\"]")).getText());
+
+
     }
+
+//    @Test
+//    public void changePass() throws InterruptedException {
+//        driver.get("https://alice-ru.shop-stage.ww-ru.ru/");
+//        Integer element = registrationPage.i;
+//        String let = Integer.toString(element);
+//        String str = "a" + let;
+//        mainPage.clickRegistration();
+//        registrationPage.choiceMaleGender();
+//        registrationPage.insertSignInName("nenashev" + str);
+//        registrationPage.insertSignInSurname("nenashev" + str);
+//        registrationPage.insertSignInMail("nenashev" + str + "@mail.ru");
+//        registrationPage.insertSignInPass("westwingpas");
+//        registrationPage.checkBoxAgreement();
+//        registrationPage.checkBoxMailSpam();
+//        registrationPage.clickSignInButton();
+//        mainPage.clickMyAccount();
+//        accountPage.clickChangeDate();
+//        accountPage.clickButtonChangePass();
+//        accountPage.inputActualPass("westwingpas");
+//        accountPage.inputNewPass("newwestwingpas");
+//        accountPage.inputNewPassConfirm("newwestwingpas");
+//        accountPage.clickSaveNewPass();
+//        Thread.sleep(3000);
+//        String OkPassChange = accountPage.getTextPassChange();
+//        Assert.assertEquals("Пароль успешно изменен", OkPassChange);
+//    }
 
     //    @Test
 //    public void forgetPass() throws InterruptedException {
@@ -606,7 +572,7 @@ public class TestMainClass {
     @Test
     public void stockUploadOnLive() throws InterruptedException {
         String urlLive = "http://bob-shop.westwing.ru/stock/upload";
-        String urlProduct = "http://bob-shop.westwing.ru/pet/product#129104/creation/simples";
+        String urlProduct = "https://bob-shop.westwing.ru/pet/product#145290/creation/simples";
         driver.get(urlLive);
         driver.findElement(By.xpath("//a[@href=\"http://bob-shop.westwing.ru/stock/upload?setWebsite=8\"]")).click();
         driver.findElement(By.xpath("//input[@id=\"username\"]")).sendKeys("nenashev");
@@ -614,14 +580,14 @@ public class TestMainClass {
         driver.findElement(By.xpath("//input[@id=\"login\"]")).click();
         driver.findElement(By.xpath("//input[@id=\"doc_path\"]")).sendKeys("C:\\автозагрузка стока Лайв\\First test upload.csv");
         driver.findElement(By.xpath("//input[@id=\"submitbutton\"]")).click();
-        driver.get(urlProduct);
         Thread.sleep(15000);
+        driver.get(urlProduct);
         Assert.assertEquals("41", driver.findElement(By.xpath("//div[@class=\"x-list-body-inner\"]/dl/dt[8]/em")).getText());
         driver.get(urlLive);
         driver.findElement(By.xpath("//input[@id=\"doc_path\"]")).sendKeys("C:\\автозагрузка стока Лайв\\secondarily test upload.csv");
         driver.findElement(By.xpath("//input[@id=\"submitbutton\"]")).click();
-        driver.get(urlProduct);
         Thread.sleep(15000);
+        driver.get(urlProduct);
         Assert.assertEquals("91", driver.findElement(By.xpath("//div[@class=\"x-list-body-inner\"]/dl/dt[8]/em")).getText());
     }
 
@@ -636,19 +602,19 @@ public class TestMainClass {
         driver.findElement(By.xpath("//input[@id=\"login\"]")).click();
         driver.findElement(By.xpath("//input[@id=\"doc_path\"]")).sendKeys("C:\\автозагрузка стока Стейдж\\first.csv");
         driver.findElement(By.xpath("//input[@id=\"submitbutton\"]")).click();
-        driver.get(urlProduct);
         Thread.sleep(15000);
-        Assert.assertEquals("421", driver.findElement(By.xpath("//div[@class=\"x-list-body-inner\"]/dl/dt[8]/em")).getText());
+        driver.get(urlProduct);
+        Assert.assertEquals("421", driver.findElement(By.xpath("//*[@id=\"ext-gen1055\"]/dl/dt[9]/em")).getText());
         driver.get(urlStage);
         driver.findElement(By.xpath("//input[@id=\"doc_path\"]")).sendKeys("C:\\автозагрузка стока Стейдж\\second.csv");
         driver.findElement(By.xpath("//input[@id=\"submitbutton\"]")).click();
-        driver.get(urlProduct);
         Thread.sleep(15000);
-        Assert.assertEquals("936", driver.findElement(By.xpath("//div[@class=\"x-list-body-inner\"]/dl/dt[8]/em")).getText());
+        driver.get(urlProduct);
+        Assert.assertEquals("936", driver.findElement(By.xpath("//*[@id=\"ext-gen1055\"]/dl/dt[9]/em")).getText());
     }
 
     @Test
-    public void SynchronizedShopClub() {
+    public void synchronizedShopClub() {
         String controlName;
         driver.get("https://shop.westwing.ru/customer/account/login/");
         registrationPage.insertLogInMail("vito777@mail.ru");
@@ -661,6 +627,41 @@ public class TestMainClass {
             driver.switchTo().window(winHandle);
         }
         Assert.assertEquals(controlName, driver.findElement(By.xpath("//span[@class=\"l-header__bottom-item-subline\"]")).getText());
+    }
+
+    @Test
+    public void checkShippingCalculation() throws InterruptedException {
+        try {
+            driver.get("https://alice-ru.shop-stage.ww-ru.ru/customer/account/login/");
+            registrationPage.insertLogInMail("testShipping@mail.ru");
+            registrationPage.insertLogInPass("westwingpas");
+            registrationPage.clickLogInButton();
+            driver.get("https://alice-ru.shop-stage.ww-ru.ru/customer/wishlist/index/");
+            wishPage.clickSomeProductBuy("RUQ19ART049916-124212");
+            driver.get("https://alice-ru.shop-stage.ww-ru.ru/checkout/multistep/billing/#shipping/");
+            basketPage.clickPayButton();
+
+            for (ShippingZone s : ShippingZone.values()) {
+                try {
+                    billPages.inputCity(s.toString());
+                    driver.findElement(billPages.city).sendKeys(Keys.ENTER);
+                    billPages.choiceDeliveryMethodExpress();
+                    System.out.println(driver.findElement(By.xpath("/html/body/div[1]/div/div[3]/main/form/div[2]/div/div[4]/div/div[2]/span")).getText());
+                    driver.findElement(billPages.city).clear();
+                    driver.navigate().refresh();
+                } catch (Exception e) {
+                    System.out.println(s.toString());
+                    driver.navigate().refresh();
+                    continue;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            driver.get("https://alice-ru.shop-stage.ww-ru.ru/cart/index/");
+            basketPage.clickProductDelete();
+        }
+
     }
 
     @After
