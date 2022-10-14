@@ -1,1 +1,1 @@
-# WestwingShop
+# WesShop
